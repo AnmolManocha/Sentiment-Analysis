@@ -27,5 +27,6 @@ public class Main {
         // * Create an instance of SentimentAnalysis and perform sentiment analysis
         SentimentAnalysis sentimentAnalysis = new SentimentAnalysis(trainingSet,
                 testingSet);
+        sentimentAnalysis.performSentimentAnalysis();
     }
 }

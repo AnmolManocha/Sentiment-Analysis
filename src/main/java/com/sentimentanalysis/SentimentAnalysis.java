@@ -1,12 +1,6 @@
 package com.sentimentanalysis;
 
-import java.util.List;
-
-/**
- * SentimentAnalysis
- * 
- * @author Anmol Manocha
- */
+import java.util.*;
 
 public class SentimentAnalysis {
     private List<String[]> trainingSet;
@@ -17,29 +11,67 @@ public class SentimentAnalysis {
         this.testingSet = testingSet;
     }
 
-    // Train the sentiment analysis model
     public void trainModel() {
-        // Train integration of GWO and FKNN Algos
+        double[] optimizedParameters = optimizeParameters();
+        FKNN fknn = new FKNN(optimizedParameters);
+        fknn.train(trainingSet);
     }
 
-    // Evaluate the sentiment analysis model
     public void evaluateModel() {
-        // Your evaluation logic here
-        // Example: Calculate accuracy, precision, recall, F1-score, or other
-        // performance metrics
+        FKNN fknn = new FKNN();
+        int correctPredictions = 0;
+        int totalPredictions = 0;
+
+        for (String[] instance : testingSet) {
+            String predictedLabel = fknn.classify(instance[0]);
+            String trueLabel = instance[1];
+
+            if (predictedLabel.equals(trueLabel)) {
+                correctPredictions++;
+            }
+
+            totalPredictions++;
+        }
+
+        double accuracy = (double) correctPredictions / totalPredictions;
+        System.out.println("Accuracy: " + accuracy);
     }
 
-    // Perform sentiment analysis on a given text
-    // public String analyzeSentiment(String text) {
-    //     // Your sentiment analysis logic here
-    //     // Example: Use the trained model to classify the sentiment of the text
-    // }
-
-    // Perform the sentiment analysis process
     public void performSentimentAnalysis() {
         trainModel();
         evaluateModel();
-        // Additional steps can be added here, such as hyperparameter tuning or model
-        // selection
+    }
+
+    private double[] optimizeParameters() {
+        GWO gwo = new GWO(10, 50); // Adjust population size and maximum iterations as needed
+
+        // Define the fitness function for GWO optimization
+        GWO.FitnessFunction fitnessFunction = new GWO.FitnessFunction() {
+            @Override
+            public double calculateFitness(double[] parameters) {
+                FKNN fknn = new FKNN(parameters);
+                fknn.train(trainingSet);
+
+                int correctPredictions = 0;
+                int totalPredictions = 0;
+
+                for (String[] instance : testingSet) {
+                    String predictedLabel = fknn.classify(instance[0]);
+                    String trueLabel = instance[1];
+
+                    if (predictedLabel.equals(trueLabel)) {
+                        correctPredictions++;
+                    }
+
+                    totalPredictions++;
+                }
+
+                double accuracy = (double) correctPredictions / totalPredictions;
+                return accuracy;
+            }
+        };
+
+        gwo.optimize(fitnessFunction);
+        return gwo.getBestSolution();
     }
 }

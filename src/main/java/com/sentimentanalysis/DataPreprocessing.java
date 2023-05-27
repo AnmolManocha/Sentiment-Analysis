@@ -16,7 +16,15 @@ import edu.stanford.nlp.pipeline.Annotation;
 /**
  * DataPreprocessing
  * 
- * @author Anmol Manocha
+ * This class provides methods to read and preprocess the sentiment analysis
+ * data.
+ * The sentiment labels are represented as 0 for negative, 2 for neutral, and 4
+ * for positive.
+ * The tweets are preprocessed by removing noise, punctuation, and special
+ * characters.
+ * Tokenization and stemming are performed using Stanford CoreNLP library.
+ * 
+ * @Author Anmol Manocha
  */
 
 public class DataPreprocessing {
@@ -33,7 +41,8 @@ public class DataPreprocessing {
                 String[] parts = line.split(",");
                 String tweet = parts[5]; // Assuming the tweet text is in the 6th column
                 String sentimentLabel = parts[0]; // Assuming the sentiment label is in the 1st column
-                String[] entry = { tweet, sentimentLabel };
+                int numericLabel = convertLabelToNumeric(sentimentLabel);
+                String[] entry = { tweet, String.valueOf(numericLabel) };
                 data.add(entry);
             }
         } catch (IOException e) {
@@ -54,7 +63,7 @@ public class DataPreprocessing {
 
         for (String[] entry : data) {
             String tweet = entry[0];
-            String sentimentLabel = entry[1];
+            int numericLabel = Integer.parseInt(entry[1]);
 
             // Remove URLs, hashtags, and mentions
             String preprocessedTweet = tweet.replaceAll("(http|https)://\\S+|www\\.\\S+|#\\S+|@\\S+", "")
@@ -73,10 +82,23 @@ public class DataPreprocessing {
                 }
             }
 
-            String[] preprocessedEntry = { tokenizedTweet.toString().trim(), sentimentLabel };
+            String[] preprocessedEntry = { tokenizedTweet.toString().trim(), String.valueOf(numericLabel) };
             preprocessedData.add(preprocessedEntry);
         }
         return preprocessedData;
+    }
+
+    private static int convertLabelToNumeric(String sentimentLabel) {
+        switch (sentimentLabel) {
+            case "0":
+                return -1; // Negative sentiment
+            case "2":
+                return 0; // Neutral sentiment
+            case "4":
+                return 1; // Positive sentiment
+            default:
+                return 0; // Default to neutral sentiment for unrecognized labels
+        }
     }
 
     public List<String[]> preprocessData() {
