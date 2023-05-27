@@ -41,7 +41,7 @@ public class DataPreprocessing {
                 String[] parts = line.split(",");
                 String tweet = parts[5]; // Assuming the tweet text is in the 6th column
                 String sentimentLabel = parts[0]; // Assuming the sentiment label is in the 1st column
-                int numericLabel = convertLabelToNumeric(sentimentLabel);
+                int numericLabel = convertLabelToNumeric(sentimentLabel.replaceAll("\"", ""));
                 String[] entry = { tweet, String.valueOf(numericLabel) };
                 data.add(entry);
             }
