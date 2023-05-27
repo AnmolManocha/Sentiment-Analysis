@@ -58,11 +58,12 @@ public class SentimentAnalysis {
                 for (String[] instance : testingSet) {
                     String predictedLabel = fknn.classify(instance[0]);
                     String trueLabel = instance[1];
-
-                    if (predictedLabel.equals(trueLabel)) {
+                    System.out.println("True Label:" + trueLabel);
+                    if (predictedLabel == null)
+                        continue;
+                    else if (predictedLabel.equals(trueLabel)) {
                         correctPredictions++;
                     }
-
                     totalPredictions++;
                 }
 
